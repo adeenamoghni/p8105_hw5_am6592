@@ -1,0 +1,44 @@
+---
+title: "hw5"
+author: "Adeena Moghni"
+date: "2024-11-10"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(rvest)
+```
+
+## Problem 1
+
+```{r}
+birthday_sim = function(n){
+  birthday_date <- sample(1:365, n, replace = TRUE) 
+  length(birthday_date) != length(unique(birthday_date))
+}
+```
+
+```{r}
+sim_results_df = 
+  expand_grid(
+    sample_size = 2:50,
+    iter = 1:1000
+  ) %>% 
+  mutate(
+    birthday_sim_df = map(sample_size, birthday_sim)
+  ) %>% 
+  unnest(birthday_sim_df) %>% 
+  group_by(sample_size) %>% 
+  summarize(
+    total = sum(birthday_sim_df),
+    probability = total/10000)
+
+ggplot(sim_results_df, aes(x = sample_size, y = probability)) +
+  geom_point() + geom_line() +
+  labs(x = "Sample Size", 
+       y = "P(at least 2 people sharing the same birthday)",
+       title = "Probability of 2 People Sharing a Birthday vs Sample Size",
+       caption = "Based off simulation of 10,000"
+       )
+```
