@@ -1,25 +1,18 @@
----
-title: "hw5"
-author: "Adeena Moghni"
-date: "2024-11-10"
-output: github_document
----
-
-```{r setup, include=FALSE}
-library(tidyverse)
-library(rvest)
-```
+hw5
+================
+Adeena Moghni
+2024-11-10
 
 ## Problem 1
 
-```{r}
+``` r
 birthday_sim = function(n){
   birthday_date <- sample(1:365, n, replace = TRUE) 
   length(birthday_date) != length(unique(birthday_date))
 }
 ```
 
-```{r}
+``` r
 sim_results_df = 
   expand_grid(
     sample_size = 2:50,
@@ -43,9 +36,11 @@ ggplot(sim_results_df, aes(x = sample_size, y = probability)) +
        )
 ```
 
+![](HW5_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
 ## Problem 2
 
-```{r}
+``` r
 power_sim = function(sample_mu){
   sim_data = tibble(
     x = rnorm(n = 30, mean = sample_mu, sd = 5),
@@ -60,7 +55,7 @@ power_sim = function(sample_mu){
 }
 ```
 
-```{r}
+``` r
 simulation_results_df = 
   expand_grid(
     sample_mu = c(0,1,2,3,4,5,6),
@@ -72,7 +67,7 @@ simulation_results_df =
   unnest(power_sim_df)
 ```
 
-```{r}
+``` r
 power_graphing_df = 
   simulation_results_df %>% 
   group_by(sample_mu) %>% 
@@ -88,7 +83,9 @@ ggplot(power_graphing_df, aes(x = sample_mu, y = proportion)) +
        )
 ```
 
-```{r}
+![](HW5_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+
+``` r
 xbar_df = 
   simulation_results_df %>% 
   group_by(sample_mu) %>%
@@ -122,3 +119,5 @@ ggplot(xbar_graphing_df, aes(x = sample_mu, y = average_xbar, color = classifica
        title = "Sample vs True Average"
        )
 ```
+
+![](HW5_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
