@@ -42,28 +42,31 @@ ggplot(sim_results_df, aes(x = sample_size, y = probability)) +
 
 ``` r
 power_sim = function(sample_mu){
-  sim_data = tibble(
-    x = rnorm(n = 30, mean = sample_mu, sd = 5),
-  )
-  sim_data %>% 
-    summarize(
-       t_test_results= broom::tidy(t.test(x, mu = 0, conf.level = .95)),
-       xbar = mean(x),
-       p_value = t_test_results$p.value
-    ) %>% 
-    select(xbar, p_value)
+    x = rnorm(n = 30, mean = sample_mu, sd = 5)
+    t_test_result= t.test(x, mu = 0, conf.level = .95)
+    tibble(xbar = mean(x), 
+           p_value = t_test_result$p.value)
 }
+
+mu_0 = power_sim(sample_mu = 0)
+print(mu_0)
 ```
+
+    ## # A tibble: 1 × 2
+    ##    xbar p_value
+    ##   <dbl>   <dbl>
+    ## 1 0.411   0.684
 
 ``` r
 simulation_results_df = 
   expand_grid(
-    sample_mu = c(0,1,2,3,4,5,6),
+    sample_mu = c(1, 2, 3, 4, 5, 6),
     iter = 1:5000
-  ) %>%  
-  mutate( 
+  ) %>% 
+  group_by(sample_mu) %>%
+  mutate(
     power_sim_df = map(sample_mu, power_sim)
-  ) %>%  
+  ) %>% 
   unnest(power_sim_df)
 ```
 
@@ -164,9 +167,10 @@ balt_result =
   broom::tidy() %>% 
   mutate(
     p_hat = estimate,
-    CI = paste("(",conf.low, ",",conf.high,")")
+    lower_ci_limit = conf.low,
+    upper_ci_limit = conf.high
   ) %>% 
-  select(p_hat, CI)
+  select(p_hat, lower_ci_limit, upper_ci_limit)
 ```
 
 ``` r
@@ -179,7 +183,21 @@ results_df =
   unnest(results) %>% 
   mutate(
     p_hat = estimate,
-    CI = paste("(",conf.low, ",",conf.high,")")
+    lower_ci_limit = conf.low,
+    upper_ci_limit = conf.high
   ) %>% 
-  select(city, p_hat, CI)
+  select(city, p_hat, lower_ci_limit, upper_ci_limit) %>% 
+  mutate(city = fct_reorder(city, p_hat))
+
+ggplot(results_df, aes(x = city, y = p_hat)) +
+  geom_point() + 
+  geom_errorbar(aes(ymin = lower_ci_limit, ymax = upper_ci_limit)) +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  labs(x = "city", 
+       y = "Sample Proportion (p hat)",
+       title = "Proportion of Unsolved Homicides by City",
+       caption = "Sample proportions with 95% confidence interval shown"
+       )
 ```
+
+![](HW5_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
