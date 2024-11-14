@@ -40,9 +40,9 @@ ggplot(sim_results_df, aes(x = sample_size, y = probability)) +
 ![](HW5_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 As expected, the probability of 2 people sharing a birthday increases as
-sample size increases. Surprisingly, though, is that only about 50
-people are needed for the probability of 2 people sharing a birthday in
-that group becoming 100%.
+sample size increases. Surprisingly, though, it only takes about 50
+people for the probability of 2 people sharing a birthday in that group
+becoming 100%.
 
 ## Problem 2
 
@@ -87,7 +87,7 @@ ggplot(power_graphing_df, aes(x = true_mu, y = proportion)) +
 
 ![](HW5_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
-As the true value of $\mu$ increases, the likelihood of the datasets
+As the true value of $\mu$ increases, the likelihood of the data sets
 having a sample mean value of 0 decreases and moves farther and farther
 away from 0. Thus, at an alpha value of .05, the probability of
 rejecting the null of $\mu$ = 0 increases until it reaches 1 at $\mu$ =
@@ -126,7 +126,7 @@ ggplot(xbar_graphing_df, aes(x = true_mu, y = average_xbar, color = classificati
   scale_x_continuous(breaks = c(0, 1, 2, 3, 4, 5, 6)) +
   labs(x = "True Average", 
        y = "Average Sample Mean",
-       title = "Sample vs True Average"
+       title = "Sample Mean vs True Mean"
        )
 ```
 
@@ -134,15 +134,14 @@ ggplot(xbar_graphing_df, aes(x = true_mu, y = average_xbar, color = classificati
 
 As seen from the graph, the sample mean for all samples starts off lower
 than sample means of rejected samples when $\mu$ is lower. This is
-because $\mu$ is closer to 0, which is what we are comparing against in
-our t tests (i.e. the null hypothesis state $\mu$ = 0). Thus, only the
-samples that have sample means that fall within the rejection region
-(samples with sample means that are extremely high or extremely low)
-will be rejected. As $\mu$ increases, the likelihood of sample means
-falling within this rejection region increases, and as seen in the
-previous graph, the proportion of samples that are rejected reaches 1.
-Because of this, the average of all sample means and the average of
-rejected sample means overlap as $\mu$ increases to 4, 5, and 6.
+because $\mu$ is closer to 0. Thus, only the samples that have sample
+means that fall within the rejection region (samples with means that are
+extremely high or extremely low) will be rejected. As $\mu$ increases,
+the likelihood of sample means falling within this rejection region
+increases, and as seen in the previous graph, the proportion of samples
+that are rejected reaches 1. Because of this, the average of all sample
+means and the average of rejected sample means overlap as $\mu$
+increases to 4, 5, and 6.
 
 ## Problem 3
 
