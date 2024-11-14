@@ -121,3 +121,65 @@ ggplot(xbar_graphing_df, aes(x = sample_mu, y = average_xbar, color = classifica
 ```
 
 ![](HW5_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
+
+## Problem 3
+
+``` r
+homicide_df = 
+  read_csv(file = "./homicide-data.csv", na = c("NA", ".", "")) %>%
+  janitor::clean_names() %>% 
+  distinct() %>% 
+  mutate(
+    city_state = paste(city, ",", state),
+    status = ifelse(disposition %in% c("Closed without arrest", "Open/No arrest"), 
+                    "Unsolved", 
+                    "Solved"))
+```
+
+    ## Rows: 52179 Columns: 12
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (9): uid, victim_last, victim_first, victim_race, victim_age, victim_sex...
+    ## dbl (3): reported_date, lat, lon
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+
+``` r
+totals_df = 
+  homicide_df %>% 
+  group_by(city) %>% 
+  summarize(
+    homicides_total = n(),
+    homicides_unsolved = sum(status == "Unsolved")
+  )
+
+unsolved_baltimore = 
+  totals_df %>% 
+  filter(city == "Baltimore")
+
+balt_result = 
+  prop.test(x = unsolved_baltimore %>% pull(homicides_unsolved), 
+            n = unsolved_baltimore %>% pull(homicides_total)) %>% 
+  broom::tidy() %>% 
+  mutate(
+    p_hat = estimate,
+    CI = paste("(",conf.low, ",",conf.high,")")
+  ) %>% 
+  select(p_hat, CI)
+```
+
+``` r
+results_df = 
+  totals_df %>% 
+  mutate(
+    prop_test = purrr::map2(homicides_unsolved, homicides_total, ~ prop.test(x = .x, n = .y))
+  ) %>% 
+  mutate(results = map(prop_test, broom::tidy)) %>% 
+  unnest(results) %>% 
+  mutate(
+    p_hat = estimate,
+    CI = paste("(",conf.low, ",",conf.high,")")
+  ) %>% 
+  select(city, p_hat, CI)
+```

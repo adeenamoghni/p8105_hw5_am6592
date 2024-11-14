@@ -8,6 +8,8 @@ output: github_document
 ```{r setup, include=FALSE}
 library(tidyverse)
 library(rvest)
+
+set.seed(1)
 ```
 
 ## Problem 1
@@ -121,4 +123,57 @@ ggplot(xbar_graphing_df, aes(x = sample_mu, y = average_xbar, color = classifica
        y = "Average Sample Average",
        title = "Sample vs True Average"
        )
+```
+
+## Problem 3
+
+```{r}
+homicide_df = 
+  read_csv(file = "./homicide-data.csv", na = c("NA", ".", "")) %>%
+  janitor::clean_names() %>% 
+  distinct() %>% 
+  mutate(
+    city_state = paste(city, ",", state),
+    status = ifelse(disposition %in% c("Closed without arrest", "Open/No arrest"), 
+                    "Unsolved", 
+                    "Solved"))
+```
+
+```{r}
+totals_df = 
+  homicide_df %>% 
+  group_by(city) %>% 
+  summarize(
+    homicides_total = n(),
+    homicides_unsolved = sum(status == "Unsolved")
+  )
+
+unsolved_baltimore = 
+  totals_df %>% 
+  filter(city == "Baltimore")
+
+balt_result = 
+  prop.test(x = unsolved_baltimore %>% pull(homicides_unsolved), 
+            n = unsolved_baltimore %>% pull(homicides_total)) %>% 
+  broom::tidy() %>% 
+  mutate(
+    p_hat = estimate,
+    CI = paste("(",conf.low, ",",conf.high,")")
+  ) %>% 
+  select(p_hat, CI)
+```
+
+```{r}
+results_df = 
+  totals_df %>% 
+  mutate(
+    prop_test = purrr::map2(homicides_unsolved, homicides_total, ~ prop.test(x = .x, n = .y))
+  ) %>% 
+  mutate(results = map(prop_test, broom::tidy)) %>% 
+  unnest(results) %>% 
+  mutate(
+    p_hat = estimate,
+    CI = paste("(",conf.low, ",",conf.high,")")
+  ) %>% 
+  select(city, p_hat, CI)
 ```
